@@ -1,0 +1,743 @@
+# =============================================================================
+# REAL ESTATE INTELLIGENCE PLATFORM - API CONFIGURATION
+# =============================================================================
+# Comprehensive REST API configuration with endpoints, authentication, 
+# rate limiting, and request/response formatting
+
+# =============================================================================
+# GLOBAL API SETTINGS
+# =============================================================================
+global:
+  # API version and metadata
+  version: v1
+  title: Real Estate Intelligence API
+  description: Advanced ML-powered real estate analytics and prediction API
+  base_url: /api/v1
+
+  # Server configuration
+  host: ${API_HOST:-0.0.0.0}
+  port: ${API_PORT:-5000}
+  debug: ${API_DEBUG:-false}
+
+  # Request/Response settings
+  max_content_length: 16777216 # 16MB
+  json_sort_keys: false
+  jsonify_prettyprint_regular: true
+
+  # CORS configuration
+  cors:
+    enabled: true
+    origins:
+      - http://localhost:3000
+      - http://localhost:5000
+      - https://*.yourdomain.com
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    headers:
+      - Content-Type
+      - Authorization
+      - X-Requested-With
+    supports_credentials: true
+    max_age: 3600
+
+# =============================================================================
+# AUTHENTICATION & AUTHORIZATION
+# =============================================================================
+authentication:
+  # JWT Configuration
+  jwt:
+    enabled: false # Set to true when implementing user auth
+    secret_key: ${JWT_SECRET_KEY:-default-secret-change-in-production}
+    algorithm: HS256
+    expiration_delta: 3600 # 1 hour in seconds
+
+    # Token configuration
+    token_location:
+      - headers
+      - query_string
+    header_name: Authorization
+    header_type: Bearer
+    query_string_name: token
+
+  # API Key Authentication
+  api_key:
+    enabled: true
+    header_name: X-API-Key
+    query_param_name: api_key
+
+    # Valid API keys (in production, store in database)
+    valid_keys:
+      - ${API_KEY_PUBLIC:-public-demo-key}
+      - ${API_KEY_PREMIUM:-premium-access-key}
+
+  # Rate limiting bypass keys
+  bypass_keys:
+    - ${RATE_LIMIT_BYPASS_KEY:-admin-bypass-key}
+
+# =============================================================================
+# RATE LIMITING CONFIGURATION
+# =============================================================================
+rate_limiting:
+  enabled: true
+
+  # Default limits
+  default:
+    per_minute: 60
+    per_hour: 1000
+    per_day: 10000
+
+  # Endpoint-specific limits
+  endpoints:
+    # Prediction endpoints (more restrictive)
+    /predict/price:
+      per_minute: 30
+      per_hour: 500
+      per_day: 5000
+
+    /predict/bulk:
+      per_minute: 5
+      per_hour: 50
+      per_day: 200
+
+    # Recommendation endpoints
+    /recommendations:
+      per_minute: 20
+      per_hour: 300
+      per_day: 2000
+
+    # Analytics endpoints
+    /analytics/market-trends:
+      per_minute: 10
+      per_hour: 100
+      per_day: 1000
+
+    # Data endpoints (least restrictive)
+    /data/properties:
+      per_minute: 100
+      per_hour: 2000
+      per_day: 20000
+
+  # User tier limits
+  tiers:
+    free:
+      per_minute: 30
+      per_hour: 300
+      per_day: 1000
+
+    premium:
+      per_minute: 100
+      per_hour: 2000
+      per_day: 20000
+
+    enterprise:
+      per_minute: 500
+      per_hour: 10000
+      per_day: 100000
+
+  # Rate limiting storage
+  storage:
+    type: memory # memory, redis
+    redis_url: ${REDIS_URL:-redis://localhost:6379/0}
+
+# =============================================================================
+# API ENDPOINTS CONFIGURATION
+# =============================================================================
+endpoints:
+
+  # Health and Status Endpoints
+  health:
+    /health:
+      methods:
+        - GET
+      description: API health check endpoint
+      public: true
+      rate_limit_exempt: true
+
+    /status:
+      methods:
+        - GET
+      description: Detailed system status
+      public: true
+
+    /version:
+      methods:
+        - GET
+      description: API version information
+      public: true
+      rate_limit_exempt: true
+
+  # Property Data Endpoints
+  properties:
+    /properties:
+      methods:
+        - GET
+        - POST
+      description: List properties or add new property
+      authentication_required: false
+
+      # GET parameters
+      get_params:
+        - name: city
+          type: string
+          required: false
+          description: Filter by city
+
+        - name: state
+          type: string
+          required: false
+          description: Filter by state
+
+        - name: min_price
+          type: number
+          required: false
+          description: Minimum listing price
+
+        - name: max_price
+          type: number
+          required: false
+          description: Maximum listing price
+
+        - name: property_type
+          type: string
+          required: false
+          enum:
+            - house
+            - condo
+            - townhouse
+            - apartment
+
+        - name: bedrooms
+          type: integer
+          required: false
+          minimum: 0
+          maximum: 10
+
+        - name: bathrooms
+          type: number
+          required: false
+          minimum: 0
+          maximum: 10
+
+        - name: limit
+          type: integer
+          required: false
+          default: 50
+          maximum: 1000
+
+        - name: offset
+          type: integer
+          required: false
+          default: 0
+
+      # POST request body schema
+      post_schema:
+        type: object
+        required:
+          - address
+          - city
+          - state
+          - property_type
+          - listing_price
+        properties:
+          address:
+            type: string
+            maxLength: 255
+          city:
+            type: string
+            maxLength: 100
+          state:
+            type: string
+            maxLength: 50
+          zipcode:
+            type: string
+            maxLength: 10
+          property_type:
+            type: string
+            enum:
+              - house
+              - condo
+              - townhouse
+              - apartment
+          bedrooms:
+            type: integer
+            minimum: 0
+            maximum: 20
+          bathrooms:
+            type: number
+            minimum: 0
+            maximum: 20
+          square_feet:
+            type: integer
+            minimum: 100
+            maximum: 50000
+          listing_price:
+            type: number
+            minimum: 1000
+            maximum: 100000000
+
+    /properties/{property_id}:
+      methods:
+        - GET
+        - PUT
+        - DELETE
+      description: Get, update, or delete specific property
+      authentication_required: false
+
+      path_params:
+        - name: property_id
+          type: string
+          required: true
+          description: Unique property identifier
+
+  # Price Prediction Endpoints
+  predictions:
+    /predict/price:
+      methods:
+        - POST
+      description: Predict property price
+      authentication_required: true
+
+      request_schema:
+        type: object
+        required:
+          - address
+          - city
+          - state
+          - property_type
+          - square_feet
+        properties:
+          address:
+            type: string
+            maxLength: 255
+          city:
+            type: string
+            maxLength: 100
+          state:
+            type: string
+            maxLength: 50
+          zipcode:
+            type: string
+            maxLength: 10
+          property_type:
+            type: string
+            enum:
+              - house
+              - condo
+              - townhouse
+              - apartment
+          bedrooms:
+            type: integer
+            minimum: 0
+            maximum: 20
+          bathrooms:
+            type: number
+            minimum: 0
+            maximum: 20
+          square_feet:
+            type: integer
+            minimum: 100
+            maximum: 50000
+          year_built:
+            type: integer
+            minimum: 1800
+            maximum: 2025
+          garage_spaces:
+            type: integer
+            minimum: 0
+            maximum: 10
+          pool:
+            type: boolean
+          fireplace:
+            type: boolean
+
+      response_schema:
+        type: object
+        properties:
+          predicted_price:
+            type: number
+          confidence_interval:
+            type: object
+            properties:
+              lower:
+                type: number
+              upper:
+                type: number
+          model_version:
+            type: string
+          prediction_id:
+            type: string
+          features_used:
+            type: array
+            items:
+              type: string
+
+    /predict/bulk:
+      methods:
+        - POST
+      description: Bulk price prediction for multiple properties
+      authentication_required: true
+
+      request_schema:
+        type: object
+        required:
+          - properties
+        properties:
+          properties:
+            type: array
+            maxItems: 100
+            items:
+              type: object
+              # Same schema as single prediction
+
+    /predict/price-range:
+      methods:
+        - POST
+      description: Predict price range category
+      authentication_required: true
+
+  # Recommendation Endpoints
+  recommendations:
+    /recommendations/similar:
+      methods:
+        - POST
+      description: Find similar properties
+      authentication_required: false
+
+      request_schema:
+        type: object
+        required:
+          - property_id
+        properties:
+          property_id:
+            type: string
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          include_price_similar:
+            type: boolean
+            default: true
+
+    /recommendations/investment:
+      methods:
+        - POST
+      description: Investment opportunity recommendations
+      authentication_required: true
+
+      request_schema:
+        type: object
+        required:
+          - budget
+          - location
+        properties:
+          budget:
+            type: object
+            required:
+              - min
+              - max
+            properties:
+              min:
+                type: number
+                minimum: 0
+              max:
+                type: number
+                minimum: 0
+          location:
+            type: object
+            properties:
+              city:
+                type: string
+              state:
+                type: string
+              radius_miles:
+                type: number
+                minimum: 0.1
+                maximum: 100
+          preferences:
+            type: object
+            properties:
+              property_types:
+                type: array
+                items:
+                  type: string
+              min_bedrooms:
+                type: integer
+                minimum: 0
+              max_bedrooms:
+                type: integer
+                maximum: 20
+
+    /recommendations/personalized:
+      methods:
+        - POST
+      description: Personalized property recommendations
+      authentication_required: true
+
+  # Market Analytics Endpoints  
+  analytics:
+    /analytics/market-trends:
+      methods:
+        - GET
+      description: Market trend analysis
+      authentication_required: false
+
+      query_params:
+        - name: location
+          type: string
+          required: true
+          description: City or market area
+        - name: timeframe
+          type: string
+          required: false
+          enum:
+            - 1m
+            - 3m
+            - 6m
+            - 1y
+            - 2y
+          default: 1y
+
+    /analytics/price-distribution:
+      methods:
+        - GET
+      description: Price distribution analysis
+      authentication_required: false
+
+    /analytics/market-forecast:
+      methods:
+        - GET
+      description: Market price forecasting
+      authentication_required: true
+
+    /analytics/roi-analysis:
+      methods:
+        - POST
+      description: ROI analysis for investment properties
+      authentication_required: true
+
+  # Data Management Endpoints
+  data:
+    /data/upload:
+      methods:
+        - POST
+      description: Upload property data file
+      authentication_required: true
+      content_types:
+        - multipart/form-data
+      max_file_size: 10485760 # 10MB
+
+    /data/export:
+      methods:
+        - GET
+      description: Export property data
+      authentication_required: true
+
+    /data/statistics:
+      methods:
+        - GET
+      description: Database statistics
+      authentication_required: false
+
+# =============================================================================
+# REQUEST/RESPONSE FORMATTING
+# =============================================================================
+formatting:
+  # Request processing
+  request:
+    max_json_size: 1048576 # 1MB
+    strict_json_parsing: true
+    validate_content_type: true
+
+  # Response formatting
+  response:
+    # Standard response wrapper
+    wrap_responses: true
+    wrapper_format:
+      success: true
+      data: {}
+      message: ''
+      timestamp: ''
+      request_id: ''
+
+    # Error response format
+    error_format:
+      success: false
+      error:
+        code: ''
+        message: ''
+        details: {}
+      timestamp: ''
+      request_id: ''
+
+    # Pagination format
+    pagination_format:
+      page: 1
+      per_page: 50
+      total: 0
+      pages: 0
+      has_next: false
+      has_prev: false
+
+  # Content negotiation
+  content_types:
+    default: application/json
+    supported:
+      - application/json
+      - application/xml
+      - text/csv
+
+  # Compression
+  compression:
+    enabled: true
+    threshold: 1024 # Compress responses > 1KB
+    algorithms:
+      - gzip
+      - deflate
+
+# =============================================================================
+# ERROR HANDLING
+# =============================================================================
+error_handling:
+  # HTTP status codes
+  status_codes:
+    validation_error: 400
+    authentication_error: 401
+    authorization_error: 403
+    not_found: 404
+    method_not_allowed: 405
+    rate_limit_exceeded: 429
+    server_error: 500
+
+  # Custom error messages
+  messages:
+    validation_error: Request validation failed
+    authentication_required: Authentication required
+    invalid_api_key: Invalid API key
+    rate_limit_exceeded: Rate limit exceeded
+    property_not_found: Property not found
+    prediction_failed: Price prediction failed
+
+  # Error details in response
+  include_stack_trace: false # Set to true in development
+  include_request_data: false
+
+# =============================================================================
+# CACHING CONFIGURATION
+# =============================================================================
+caching:
+  enabled: true
+
+  # Cache backend
+  backend: memory # memory, redis, memcached
+  redis_url: ${REDIS_URL:-redis://localhost:6379/0}
+
+  # Default cache settings
+  default_timeout: 3600 # 1 hour
+
+  # Endpoint-specific caching
+  endpoints:
+    /analytics/market-trends:
+      timeout: 7200 # 2 hours
+      vary_on:
+        - location
+        - timeframe
+
+    /properties:
+      timeout: 1800 # 30 minutes
+      vary_on:
+        - city
+        - state
+        - property_type
+
+    /analytics/price-distribution:
+      timeout: 3600 # 1 hour
+
+  # Cache invalidation
+  invalidation:
+    on_data_update: true
+    manual_keys: []
+
+# =============================================================================
+# MONITORING & LOGGING
+# =============================================================================
+monitoring:
+  # Request logging
+  request_logging:
+    enabled: true
+    log_level: INFO
+    include_headers: false
+    include_body: false
+    exclude_endpoints:
+      - /health
+      - /status
+
+  # Performance monitoring
+  performance:
+    enabled: true
+    slow_request_threshold: 2 # seconds
+
+  # Metrics collection
+  metrics:
+    enabled: true
+    endpoint_metrics: true
+    response_time_metrics: true
+    error_rate_metrics: true
+
+  # Health checks
+  health_checks:
+    database_check: true
+    model_availability_check: true
+    external_api_check: false
+
+# =============================================================================
+# DEVELOPMENT & TESTING
+# =============================================================================
+development:
+  # API documentation
+  documentation:
+    enabled: true
+    swagger_ui_path: /docs
+    openapi_spec_path: /openapi.json
+
+  # Testing endpoints
+  testing_endpoints:
+    enabled: ${TESTING:-false}
+    prefix: /test
+
+  # Mock responses
+  mock_mode: false
+  mock_delay: 0.1 # seconds
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+security:
+  # Input validation
+  validation:
+    strict_mode: true
+    max_string_length: 1000
+    max_array_length: 100
+
+  # Request sanitization
+  sanitization:
+    enabled: true
+    strip_whitespace: true
+    escape_html: true
+
+  # Security headers
+  headers:
+    x_content_type_options: nosniff
+    x_frame_options: DENY
+    x_xss_protection: 1; mode=block
+    strict_transport_security: max-age=31536000; includeSubDomains
+
+  # Request size limits
+  limits:
+    max_request_size: 16777216 # 16MB
+    max_url_length: 2048
+    max_header_size: 8192

@@ -1,0 +1,640 @@
+# =============================================================================
+# REAL ESTATE INTELLIGENCE PLATFORM - MODEL CONFIGURATION
+# =============================================================================
+# Comprehensive ML model configuration for price prediction, recommendations,
+# market analysis with hyperparameters and ensemble settings
+
+# =============================================================================
+# GLOBAL MODEL SETTINGS
+# =============================================================================
+global:
+  # Random seed for reproducibility
+  random_state: 42
+
+  # Model versioning
+  model_version: 1.0.0
+  model_registry_path: models/model_registry
+
+  # Cross-validation settings
+  cross_validation:
+    n_splits: 5
+    shuffle: true
+    stratified: false
+
+  # Data splitting
+  data_split:
+    test_size: 0.2
+    validation_size: 0.2
+    random_state: 42
+
+  # Feature selection
+  feature_selection:
+    enabled: true
+    method: mutual_info_regression # mutual_info_regression, f_regression, rfe
+    max_features: 50
+    threshold: 0.01
+
+  # Preprocessing
+  preprocessing:
+    scaling_method: standard # standard, minmax, robust, quantile
+    handle_outliers: true
+    outlier_method: iqr # iqr, isolation_forest, local_outlier_factor
+    outlier_threshold: 1.5
+
+# =============================================================================
+# PRICE PREDICTION MODELS
+# =============================================================================
+price_prediction:
+
+  # Target variable configuration
+  target:
+    column: listing_price
+    log_transform: true
+    clip_outliers: true
+    lower_percentile: 0.01
+    upper_percentile: 0.99
+
+  # XGBoost Regressor
+  xgboost:
+    enabled: true
+    hyperparameters:
+      n_estimators: 1000
+      max_depth: 8
+      learning_rate: 0.1
+      subsample: 0.8
+      colsample_bytree: 0.8
+      colsample_bylevel: 1
+      colsample_bynode: 1
+      gamma: 0
+      min_child_weight: 1
+      max_delta_step: 0
+      reg_alpha: 0
+      reg_lambda: 1
+      scale_pos_weight: 1
+      objective: reg:squarederror
+      eval_metric: rmse
+      early_stopping_rounds: 50
+      verbose: false
+      n_jobs: -1
+      random_state: 42
+
+    # Hyperparameter optimization
+    hyperopt:
+      enabled: true
+      n_trials: 100
+      optimization_method: optuna # optuna, hyperopt, grid_search, random_search
+      search_space:
+        n_estimators:
+          - 500
+          - 2000
+        max_depth:
+          - 3
+          - 12
+        learning_rate:
+          - 0.01
+          - 0.3
+        subsample:
+          - 0.6
+          - 1
+        colsample_bytree:
+          - 0.6
+          - 1
+        gamma:
+          - 0
+          - 1
+        reg_alpha:
+          - 0
+          - 1
+        reg_lambda:
+          - 0
+          - 2
+
+  # LightGBM Regressor
+  lightgbm:
+    enabled: true
+    hyperparameters:
+      n_estimators: 1000
+      max_depth: 8
+      learning_rate: 0.1
+      num_leaves: 31
+      subsample: 0.8
+      subsample_freq: 1
+      colsample_bytree: 0.8
+      min_child_samples: 20
+      min_child_weight: 0.001
+      min_split_gain: 0
+      reg_alpha: 0
+      reg_lambda: 0
+      objective: regression
+      metric: rmse
+      boosting_type: gbdt
+      early_stopping_rounds: 50
+      verbose: -1
+      n_jobs: -1
+      random_state: 42
+
+    hyperopt:
+      enabled: true
+      n_trials: 100
+      search_space:
+        n_estimators:
+          - 500
+          - 2000
+        max_depth:
+          - 3
+          - 12
+        learning_rate:
+          - 0.01
+          - 0.3
+        num_leaves:
+          - 15
+          - 100
+        subsample:
+          - 0.6
+          - 1
+        colsample_bytree:
+          - 0.6
+          - 1
+        reg_alpha:
+          - 0
+          - 1
+        reg_lambda:
+          - 0
+          - 2
+
+  # Random Forest Regressor
+  random_forest:
+    enabled: true
+    hyperparameters:
+      n_estimators: 500
+      max_depth: 12
+      min_samples_split: 5
+      min_samples_leaf: 2
+      max_features: sqrt
+      bootstrap: true
+      oob_score: true
+      n_jobs: -1
+      random_state: 42
+
+    hyperopt:
+      enabled: true
+      n_trials: 50
+      search_space:
+        n_estimators:
+          - 100
+          - 1000
+        max_depth:
+          - 5
+          - 20
+        min_samples_split:
+          - 2
+          - 10
+        min_samples_leaf:
+          - 1
+          - 5
+        max_features:
+          - sqrt
+          - log2
+          - 0.5
+          - 0.8
+
+  # Support Vector Regression
+  svr:
+    enabled: false
+    hyperparameters:
+      kernel: rbf
+      C: 100
+      gamma: scale
+      epsilon: 0.1
+      cache_size: 1000
+
+    hyperopt:
+      enabled: true
+      n_trials: 50
+      search_space:
+        C:
+          - 0.1
+          - 1000
+        gamma:
+          - scale
+          - auto
+          - 0.001
+          - 0.01
+          - 0.1
+          - 1
+        epsilon:
+          - 0.01
+          - 1
+
+  # Neural Network (MLP Regressor)
+  neural_network:
+    enabled: true
+    hyperparameters:
+      hidden_layer_sizes:
+        - 256
+        - 128
+        - 64
+      activation: relu
+      solver: adam
+      alpha: 0.001
+      learning_rate: adaptive
+      learning_rate_init: 0.001
+      max_iter: 1000
+      early_stopping: true
+      validation_fraction: 0.1
+      n_iter_no_change: 10
+      random_state: 42
+
+    hyperopt:
+      enabled: true
+      n_trials: 75
+      search_space:
+        hidden_layer_sizes:
+          - - 128
+          - - 256
+          - - 128
+            - 64
+          - - 256
+            - 128
+          - - 256
+            - 128
+            - 64
+        alpha:
+          - 0.0001
+          - 0.01
+        learning_rate_init:
+          - 0.0001
+          - 0.01
+
+  # Linear Models
+  linear_models:
+    # Ridge Regression
+    ridge:
+      enabled: true
+      hyperparameters:
+        alpha: 1
+        solver: auto
+        random_state: 42
+      hyperopt:
+        enabled: true
+        n_trials: 50
+        search_space:
+          alpha:
+            - 0.1
+            - 10
+
+    # Lasso Regression
+    lasso:
+      enabled: true
+      hyperparameters:
+        alpha: 1
+        max_iter: 1000
+        random_state: 42
+      hyperopt:
+        enabled: true
+        n_trials: 50
+        search_space:
+          alpha:
+            - 0.01
+            - 10
+
+    # Elastic Net
+    elastic_net:
+      enabled: true
+      hyperparameters:
+        alpha: 1
+        l1_ratio: 0.5
+        max_iter: 1000
+        random_state: 42
+      hyperopt:
+        enabled: true
+        n_trials: 50
+        search_space:
+          alpha:
+            - 0.01
+            - 10
+          l1_ratio:
+            - 0.1
+            - 0.9
+
+# =============================================================================
+# PROPERTY RECOMMENDATION MODELS
+# =============================================================================
+recommendation:
+
+  # Content-Based Filtering
+  content_based:
+    enabled: true
+
+    # Feature weights for similarity calculation
+    feature_weights:
+      location: 0.3
+      price_range: 0.25
+      property_type: 0.2
+      size: 0.15
+      amenities: 0.1
+
+    # Similarity metrics
+    similarity_metrics:
+      primary: cosine # cosine, euclidean, manhattan, jaccard
+      fallback: euclidean
+
+    # Recommendation parameters
+    n_recommendations: 10
+    min_similarity_threshold: 0.1
+    diversity_factor: 0.2 # Balance between similarity and diversity
+
+  # Collaborative Filtering (Matrix Factorization)
+  collaborative:
+    enabled: false # Enable when user interaction data is available
+
+    # Matrix Factorization parameters
+    matrix_factorization:
+      n_factors: 50
+      learning_rate: 0.01
+      regularization: 0.1
+      n_epochs: 100
+      random_state: 42
+
+  # Hybrid Recommendation
+  hybrid:
+    enabled: true
+
+    # Combination weights
+    weights:
+      content_based: 0.7
+      price_prediction: 0.3
+
+    # Ranking parameters
+    ranking_method: weighted_score
+    boost_new_listings: true
+    boost_factor: 1.2
+
+# =============================================================================
+# MARKET ANALYSIS MODELS
+# =============================================================================
+market_analysis:
+
+  # Price Trend Forecasting
+  trend_forecasting:
+    enabled: true
+
+    # Time series models
+    arima:
+      enabled: true
+      auto_arima: true
+      max_p: 5
+      max_d: 2
+      max_q: 5
+      seasonal: true
+      stepwise: true
+      suppress_warnings: true
+
+    prophet:
+      enabled: true
+      yearly_seasonality: true
+      weekly_seasonality: false
+      daily_seasonality: false
+      changepoint_prior_scale: 0.05
+      seasonality_prior_scale: 10
+
+    lstm:
+      enabled: false # Enable for deep learning approach
+      sequence_length: 60
+      hidden_units: 50
+      dropout_rate: 0.2
+      epochs: 100
+      batch_size: 32
+
+  # Market Segmentation
+  segmentation:
+    enabled: true
+
+    # Clustering algorithms
+    kmeans:
+      enabled: true
+      n_clusters: 8
+      init: k-means++
+      max_iter: 300
+      random_state: 42
+
+    hierarchical:
+      enabled: true
+      linkage: ward
+      n_clusters: 8
+
+    dbscan:
+      enabled: false
+      eps: 0.5
+      min_samples: 5
+
+# =============================================================================
+# ENSEMBLE CONFIGURATIONS
+# =============================================================================
+ensemble:
+
+  # Ensemble methods for price prediction
+  price_prediction_ensemble:
+    enabled: true
+
+    # Voting Regressor
+    voting:
+      enabled: true
+      voting: soft # soft, hard (for classifiers)
+
+      # Base models to include
+      estimators:
+        - name: xgboost
+          weight: 0.3
+        - name: lightgbm
+          weight: 0.3
+        - name: random_forest
+          weight: 0.2
+        - name: neural_network
+          weight: 0.2
+
+    # Stacking Regressor
+    stacking:
+      enabled: true
+
+      # Base models (level 0)
+      base_estimators:
+        - xgboost
+        - lightgbm
+        - random_forest
+
+      # Meta-learner (level 1)
+      meta_learner: ridge
+      cv: 5
+      passthrough: false
+
+    # Blending
+    blending:
+      enabled: true
+      blend_weights:
+        - 0.4
+        - 0.3
+        - 0.2
+        - 0.1
+        # XGB, LGB, RF, NN
+
+  # Model selection criteria
+  selection:
+    primary_metric: rmse
+    secondary_metrics:
+      - mae
+      - r2
+      - mape
+    cross_validation_score_threshold: 0.85
+    overfitting_threshold: 0.1 # Max difference between train and val scores
+
+# =============================================================================
+# MODEL EVALUATION SETTINGS
+# =============================================================================
+evaluation:
+
+  # Regression metrics
+  regression_metrics:
+    - rmse
+    - mae
+    - r2
+    - mape
+    - explained_variance
+    - max_error
+
+  # Classification metrics (for categorical predictions)
+  classification_metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - roc_auc
+
+  # Custom evaluation
+  custom_metrics:
+    price_accuracy_bands:
+      enabled: true
+      tolerance_percentages:
+        - 5
+        - 10
+        - 15
+        - 20
+
+    regional_performance:
+      enabled: true
+      group_by: city
+
+    property_type_performance:
+      enabled: true
+      group_by: property_type
+
+  # Model interpretability
+  explainability:
+    shap_analysis:
+      enabled: true
+      sample_size: 1000 # Number of samples for SHAP calculation
+      plot_types:
+        - waterfall
+        - summary
+        - dependence
+
+    feature_importance:
+      enabled: true
+      n_top_features: 20
+
+    partial_dependence:
+      enabled: true
+      features:
+        - square_feet
+        - bedrooms
+        - bathrooms
+        - year_built
+
+# =============================================================================
+# MODEL MONITORING & DEPLOYMENT
+# =============================================================================
+monitoring:
+
+  # Performance monitoring
+  performance_monitoring:
+    enabled: true
+
+    # Drift detection
+    data_drift:
+      enabled: true
+      detection_method: ks_test # ks_test, chi2_test, wasserstein
+      threshold: 0.05
+
+    concept_drift:
+      enabled: true
+      detection_method: adwin # adwin, page_hinkley
+
+    # Performance degradation
+    performance_degradation:
+      enabled: true
+      threshold_rmse_increase: 0.1 # 10% increase triggers alert
+      monitoring_window_days: 7
+
+  # Retraining triggers
+  retraining:
+    enabled: true
+
+    # Automatic retraining conditions
+    triggers:
+      schedule_based:
+        enabled: true
+        schedule: 0 2 * * 0 # Weekly on Sunday at 2 AM
+
+      performance_based:
+        enabled: true
+        rmse_threshold_increase: 0.15
+
+      data_volume_based:
+        enabled: true
+        new_data_threshold: 1000 # Retrain when 1000+ new samples
+
+    # Retraining configuration
+    retrain_config:
+      use_latest_data_only: false
+      data_window_months: 12
+      validate_before_deployment: true
+      backup_current_model: true
+
+# =============================================================================
+# EXPERIMENTAL FEATURES
+# =============================================================================
+experimental:
+
+  # Deep Learning Models
+  deep_learning:
+    enabled: false
+
+    # Convolutional Neural Networks (for image features)
+    cnn:
+      enabled: false
+      architecture: ResNet50
+      input_shape:
+        - 224
+        - 224
+        - 3
+      freeze_base: true
+
+    # Transformer models (for text features)
+    transformer:
+      enabled: false
+      model_name: bert-base-uncased
+      max_length: 512
+
+  # Advanced Ensemble Methods
+  advanced_ensemble:
+    enabled: false
+
+    # Dynamic ensemble selection
+    dynamic_selection:
+      enabled: false
+      selection_method: knorae # knorae, knorau, ola, lca
+
+    # Bayesian model averaging
+    bayesian_averaging:
+      enabled: false
+      n_samples: 1000

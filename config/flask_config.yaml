@@ -1,0 +1,563 @@
+# =============================================================================
+# REAL ESTATE INTELLIGENCE PLATFORM - FLASK CONFIGURATION
+# =============================================================================
+# Comprehensive Flask application configuration for web interface
+# and API with environment-specific settings and optimization
+
+# =============================================================================
+# ENVIRONMENT-SPECIFIC CONFIGURATIONS
+# =============================================================================
+default: &default_settings
+  # Flask core settings
+  DEBUG: false
+  TESTING: false
+  SECRET_KEY: "${SECRET_KEY:-default-change-in-production}"
+  
+  # Application settings
+  APPLICATION_ROOT: "/"
+  SERVER_NAME: null
+  PREFERRED_URL_SCHEME: "http"
+  
+  # Session configuration
+  PERMANENT_SESSION_LIFETIME: 86400  # 24 hours in seconds
+  SESSION_COOKIE_SECURE: false
+  SESSION_COOKIE_HTTPONLY: true
+  SESSION_COOKIE_SAMESITE: "Lax"
+  
+  # Security headers
+  SEND_FILE_MAX_AGE_DEFAULT: 43200  # 12 hours
+
+# Development Environment
+development:
+  <<: *default_settings
+  
+  # Development-specific Flask settings
+  DEBUG: true
+  TESTING: false
+  ENV: "development"
+  
+  # Development server settings
+  HOST: "127.0.0.1"
+  PORT: 5000
+  THREADED: true
+  USE_RELOADER: true
+  USE_DEBUGGER: true
+  
+  # Debug toolbar
+  DEBUG_TB_ENABLED: true
+  DEBUG_TB_INTERCEPT_REDIRECTS: false
+  DEBUG_TB_PROFILER_ENABLED: true
+  
+  # Development database
+  SQLALCHEMY_DATABASE_URI: "sqlite:///real_estate_dev.db"
+  SQLALCHEMY_ECHO: true
+  SQLALCHEMY_TRACK_MODIFICATIONS: true
+  
+  # Development caching
+  CACHE_TYPE: "simple"
+  CACHE_DEFAULT_TIMEOUT: 300
+  
+  # Development logging
+  LOG_LEVEL: "DEBUG"
+  LOG_FILE_ENABLED: true
+
+# Testing Environment  
+testing:
+  <<: *default_settings
+  
+  # Testing-specific Flask settings
+  DEBUG: false
+  TESTING: true
+  ENV: "testing"
+  
+  # Testing database
+  SQLALCHEMY_DATABASE_URI: "sqlite:///:memory:"
+  SQLALCHEMY_ECHO: false
+  SQLALCHEMY_TRACK_MODIFICATIONS: false
+  
+  # Testing security
+  SECRET_KEY: "testing-secret-key-not-for-production"
+  WTF_CSRF_ENABLED: false
+  
+  # Testing cache
+  CACHE_TYPE: "null"
+  
+  # Testing logging
+  LOG_LEVEL: "ERROR"
+  LOG_FILE_ENABLED: false
+
+# Production Environment
+production:
+  <<: *default_settings
+  
+  # Production Flask settings
+  DEBUG: false
+  TESTING: false
+  ENV: "production"
+  
+  # Production server settings
+  HOST: "0.0.0.0"
+  PORT: "${PORT:-5000}"
+  THREADED: true
+  
+  # Production security
+  SECRET_KEY: "${SECRET_KEY}"
+  SESSION_COOKIE_SECURE: true
+  SESSION_COOKIE_HTTPONLY: true
+  SESSION_COOKIE_SAMESITE: "Strict"
+  
+  # Production database
+  SQLALCHEMY_DATABASE_URI: "${DATABASE_URL}"
+  SQLALCHEMY_ECHO: false
+  SQLALCHEMY_TRACK_MODIFICATIONS: false
+  SQLALCHEMY_ENGINE_OPTIONS:
+    pool_size: 20
+    max_overflow: 40
+    pool_timeout: 60
+    pool_recycle: 3600
+  
+  # Production caching
+  CACHE_TYPE: "redis"
+  CACHE_REDIS_URL: "${REDIS_URL:-redis://localhost:6379/0}"
+  CACHE_DEFAULT_TIMEOUT: 3600
+  
+  # Production logging
+  LOG_LEVEL: "INFO"
+  LOG_FILE_ENABLED: true
+
+# =============================================================================
+# FLASK CORE CONFIGURATION
+# =============================================================================
+flask:
+  # Application factory settings
+  instance_relative_config: true
+  instance_path: null
+  
+  # Request handling
+  MAX_CONTENT_LENGTH: 16777216  # 16MB
+  MAX_FORM_MEMORY_SIZE: null
+  MAX_FORM_PARTS: 1000
+  
+  # JSON configuration
+  JSON_AS_ASCII: false
+  JSON_SORT_KEYS: false
+  JSONIFY_PRETTYPRINT_REGULAR: true
+  JSONIFY_MIMETYPE: "application/json"
+  
+  # Template configuration
+  TEMPLATES_AUTO_RELOAD: "${DEBUG:-false}"
+  EXPLAIN_TEMPLATE_LOADING: false
+  
+  # Static files
+  STATIC_FOLDER: "static"
+  STATIC_URL_PATH: "/static"
+  
+  # Error handling
+  PROPAGATE_EXCEPTIONS: null
+  PRESERVE_CONTEXT_ON_EXCEPTION: null
+  TRAP_HTTP_EXCEPTIONS: false
+  TRAP_BAD_REQUEST_ERRORS: null
+
+# =============================================================================
+# TEMPLATE ENGINE CONFIGURATION
+# =============================================================================
+templates:
+  # Jinja2 environment settings
+  jinja2:
+    auto_reload: "${DEBUG:-false}"
+    cache_size: 400
+    
+    # Template optimization
+    optimized: true
+    finalize: null
+    
+    # Extensions
+    extensions:
+      - "jinja2.ext.autoescape"
+      - "jinja2.ext.with_"
+      - "jinja2.ext.loopcontrols"
+    
+    # Global template variables
+    globals:
+      app_name: "Real Estate Intelligence Platform"
+      app_version: "1.0.0"
+      current_year: 2025
+      
+    # Template filters
+    filters:
+      currency: "filters.currency_filter"
+      percentage: "filters.percentage_filter"
+      date_format: "filters.date_format_filter"
+      number_format: "filters.number_format_filter"
+  
+  # Template directories
+  directories:
+    - "web_app/templates"
+    - "web_app/templates/components"
+    - "web_app/templates/emails"
+  
+  # Template caching
+  caching:
+    enabled: true
+    timeout: 3600
+    key_prefix: "template_cache"
+
+# =============================================================================
+# STATIC FILE CONFIGURATION
+# =============================================================================
+static_files:
+  # Static file serving
+  serving:
+    enabled: true
+    max_age: 43200  # 12 hours
+    
+  # Asset compilation
+  assets:
+    auto_build: "${DEBUG:-false}"
+    cache: true
+    manifest: "static/manifest.json"
+    
+    # CSS configuration
+    css:
+      directory: "web_app/static/css"
+      output: "web_app/static/css/compiled"
+      minify: "${PRODUCTION:-false}"
+      source_maps: "${DEBUG:-false}"
+      
+    # JavaScript configuration
+    js:
+      directory: "web_app/static/js" 
+      output: "web_app/static/js/compiled"
+      minify: "${PRODUCTION:-false}"
+      source_maps: "${DEBUG:-false}"
+      
+    # Image optimization
+    images:
+      directory: "web_app/static/images"
+      optimize: "${PRODUCTION:-false}"
+      formats: ["jpg", "png", "svg", "webp"]
+  
+  # CDN configuration (for production)
+  cdn:
+    enabled: false
+    base_url: ""
+    static_endpoint: null
+
+# =============================================================================
+# SESSION MANAGEMENT
+# =============================================================================
+session:
+  # Session type configuration
+  type: "filesystem"  # filesystem, redis, mongodb, sqlalchemy
+  
+  # Filesystem sessions
+  filesystem:
+    directory: "flask_session"
+    threshold: 500
+    mode: 384
+    
+  # Redis sessions (if using Redis)
+  redis:
+    url: "${REDIS_URL:-redis://localhost:6379/0}"
+    key_prefix: "session:"
+    
+  # Session security
+  security:
+    permanent: false
+    use_signer: true
+    key_derivation: "hmac"
+    
+  # Cookie configuration
+  cookie:
+    name: "session"
+    domain: null
+    path: "/"
+    secure: "${PRODUCTION:-false}"
+    httponly: true
+    samesite: "Lax"
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+security:
+  # CSRF Protection
+  csrf:
+    enabled: true
+    secret_key: "${SECRET_KEY}"
+    time_limit: 3600
+    
+  # Content Security Policy
+  csp:
+    enabled: true
+    policy:
+      default_src: "'self'"
+      script_src: "'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com"
+      style_src: "'self' 'unsafe-inline' https://fonts.googleapis.com"
+      font_src: "'self' https://fonts.gstatic.com"
+      img_src: "'self' data: https:"
+      connect_src: "'self'"
+      
+  # Security headers
+  headers:
+    force_https: "${PRODUCTION:-false}"
+    hsts:
+      enabled: "${PRODUCTION:-false}"
+      max_age: 31536000
+      include_subdomains: true
+      
+    content_type_options: true
+    frame_options: "DENY"
+    xss_protection: true
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  # Log levels
+  level: "${LOG_LEVEL:-INFO}"
+  
+  # Log formatting
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  
+  # File logging
+  file:
+    enabled: "${LOG_FILE_ENABLED:-true}"
+    path: "logs/flask_app.log"
+    max_bytes: 10485760  # 10MB
+    backup_count: 5
+    
+  # Console logging
+  console:
+    enabled: true
+    level: "${LOG_LEVEL:-INFO}"
+    
+  # Request logging
+  requests:
+    enabled: true
+    include_ip: true
+    include_user_agent: false
+    exclude_paths: ["/health", "/static"]
+
+# =============================================================================
+# CACHE CONFIGURATION
+# =============================================================================
+cache:
+  # Cache backend
+  backend: "${CACHE_TYPE:-simple}"
+  
+  # Simple cache (development)
+  simple:
+    threshold: 1000
+    default_timeout: 300
+    
+  # Redis cache (production)
+  redis:
+    url: "${REDIS_URL:-redis://localhost:6379/0}"
+    key_prefix: "flask_cache:"
+    default_timeout: 3600
+    
+  # Memcached cache
+  memcached:
+    servers: ["127.0.0.1:11211"]
+    key_prefix: "flask_cache:"
+    default_timeout: 3600
+    
+  # Cache configuration per view
+  view_caching:
+    enabled: true
+    default_timeout: 1800
+    
+    # Specific view timeouts
+    timeouts:
+      dashboard: 600       # 10 minutes
+      market_analysis: 1800  # 30 minutes
+      property_search: 300   # 5 minutes
+
+# =============================================================================
+# FORM HANDLING CONFIGURATION
+# =============================================================================
+forms:
+  # WTForms configuration
+  wtf:
+    csrf_enabled: true
+    csrf_time_limit: 3600
+    csrf_token_validity: 3600
+    
+  # File upload configuration
+  uploads:
+    default_dest: "uploads/"
+    max_file_size: 16777216  # 16MB
+    allowed_extensions: ["csv", "xlsx", "json", "pdf", "jpg", "png"]
+    
+    # Upload security
+    filters: []
+    deny: []
+    
+  # Form validation
+  validation:
+    strict_mode: true
+    strip_whitespace: true
+
+# =============================================================================
+# EMAIL CONFIGURATION
+# =============================================================================
+mail:
+  # SMTP configuration
+  server: "${MAIL_SERVER:-localhost}"
+  port: "${MAIL_PORT:-587}"
+  use_tls: "${MAIL_USE_TLS:-true}"
+  use_ssl: "${MAIL_USE_SSL:-false}"
+  
+  # Authentication
+  username: "${MAIL_USERNAME:-}"
+  password: "${MAIL_PASSWORD:-}"
+  
+  # Default sender
+  default_sender: "${MAIL_DEFAULT_SENDER:-noreply@realestate.com}"
+  
+  # Email templates
+  templates:
+    directory: "web_app/templates/emails"
+    
+  # Email debugging
+  debug: "${DEBUG:-false}"
+  suppress_send: "${TESTING:-false}"
+
+# =============================================================================
+# PERFORMANCE OPTIMIZATION
+# =============================================================================
+performance:
+  # Response compression
+  compression:
+    enabled: true
+    level: 6
+    minimum_size: 500
+    
+  # Response caching
+  response_caching:
+    enabled: true
+    default_timeout: 300
+    
+  # Database connection pooling
+  database_pool:
+    size: 10
+    max_overflow: 20
+    timeout: 30
+    recycle: 3600
+    
+  # Request timeouts
+  timeouts:
+    request: 30
+    database: 10
+    external_api: 15
+
+# =============================================================================
+# MONITORING & METRICS
+# =============================================================================
+monitoring:
+  # Application monitoring
+  app_monitoring:
+    enabled: true
+    
+  # Performance metrics
+  metrics:
+    enabled: true
+    endpoint: "/metrics"
+    include_process_metrics: true
+    
+  # Health checks
+  health_check:
+    endpoint: "/health"
+    include_database: true
+    include_cache: true
+    include_external_deps: false
+
+# =============================================================================
+# DEVELOPMENT TOOLS
+# =============================================================================
+development_tools:
+  # Flask Debug Toolbar
+  debug_toolbar:
+    enabled: "${DEBUG:-false}"
+    intercept_redirects: false
+    profiler_enabled: true
+    
+  # Live reload
+  live_reload:
+    enabled: "${DEBUG:-false}"
+    
+  # API documentation
+  swagger:
+    enabled: "${DEBUG:-false}"
+    url: "/docs"
+    
+  # Development middleware
+  middleware:
+    request_id: true
+    timing: true
+
+# =============================================================================
+# FEATURE FLAGS
+# =============================================================================
+features:
+  # Web application features
+  web_features:
+    price_prediction: true
+    property_recommendations: true
+    market_analysis: true
+    user_dashboards: true
+    report_generation: true
+    
+  # API features
+  api_features:
+    public_endpoints: true
+    authenticated_endpoints: true
+    rate_limiting: true
+    api_documentation: true
+    
+  # Experimental features
+  experimental:
+    real_time_updates: false
+    advanced_analytics: false
+    machine_learning_insights: true
+
+# =============================================================================
+# INTERNATIONALIZATION
+# =============================================================================
+i18n:
+  # Language configuration
+  default_language: "en"
+  supported_languages: ["en", "es", "fr"]
+  
+  # Babel configuration
+  babel:
+    default_locale: "en"
+    default_timezone: "UTC"
+    
+  # Translation files
+  translations:
+    directory: "web_app/translations"
+    domain: "messages"
+
+# =============================================================================
+# ERROR HANDLING
+# =============================================================================
+error_handling:
+  # Error pages
+  error_pages:
+    404: "errors/404.html"
+    500: "errors/500.html"
+    403: "errors/403.html"
+    
+  # Error reporting
+  reporting:
+    enabled: "${PRODUCTION:-false}"
+    email_errors: true
+    admin_emails: ["${ADMIN_EMAIL:-admin@example.com}"]
+    
+  # Error logging
+  logging:
+    include_request_data: "${DEBUG:-false}"
+    include_stack_trace: "${DEBUG:-false}"
+# =============================================================================

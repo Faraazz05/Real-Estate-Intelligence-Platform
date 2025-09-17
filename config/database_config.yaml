@@ -1,0 +1,653 @@
+# =============================================================================
+# REAL ESTATE INTELLIGENCE PLATFORM - DATABASE CONFIGURATION
+# =============================================================================
+# Comprehensive database configuration supporting multiple environments
+# and database systems with connection pooling and migration management
+
+# =============================================================================
+# ENVIRONMENT-SPECIFIC CONFIGURATIONS
+# =============================================================================
+default:
+  # Database type selection: sqlite, postgresql, mysql
+  database_type: sqlite
+
+  # Connection settings
+  connection:
+    pool_size: 10
+    max_overflow: 20
+    pool_timeout: 30
+    pool_recycle: 3600
+    pool_pre_ping: true
+    echo_queries: false
+
+  # Migration settings
+  migrations:
+    auto_migrate: true
+    migration_directory: migrations/
+    backup_before_migration: true
+
+  # Schema settings
+  schema:
+    enforce_foreign_keys: true
+    cascade_deletes: true
+    create_indexes: true
+
+# Development Environment
+development:
+  <<:
+    database_type: sqlite
+    connection:
+      pool_size: 10
+      max_overflow: 20
+      pool_timeout: 30
+      pool_recycle: 3600
+      pool_pre_ping: true
+      echo_queries: false
+    migrations:
+      auto_migrate: true
+      migration_directory: migrations/
+      backup_before_migration: true
+    schema:
+      enforce_foreign_keys: true
+      cascade_deletes: true
+      create_indexes: true
+
+  # SQLite configuration for development
+  sqlite:
+    database_path: data/real_estate_development.db
+    journal_mode: WAL
+    synchronous: NORMAL
+    foreign_keys: true
+
+  # Connection settings for development
+  connection:
+    echo_queries: true
+    pool_size: 5
+    max_overflow: 10
+
+  # Performance settings
+  performance:
+    query_cache_size: 1000
+    enable_query_logging: true
+    slow_query_threshold: 2
+
+# Testing Environment  
+testing:
+  <<:
+    database_type: sqlite
+    connection:
+      pool_size: 10
+      max_overflow: 20
+      pool_timeout: 30
+      pool_recycle: 3600
+      pool_pre_ping: true
+      echo_queries: false
+    migrations:
+      auto_migrate: true
+      migration_directory: migrations/
+      backup_before_migration: true
+    schema:
+      enforce_foreign_keys: true
+      cascade_deletes: true
+      create_indexes: true
+
+  # In-memory SQLite for testing
+  sqlite:
+    database_path: ':memory:'
+    journal_mode: MEMORY
+    synchronous: 'OFF'
+    foreign_keys: true
+
+  # Testing-specific settings
+  connection:
+    echo_queries: false
+    pool_size: 1
+    max_overflow: 0
+
+  # Migration settings for testing
+  migrations:
+    auto_migrate: true
+    reset_on_startup: true
+
+# Production Environment
+production:
+  <<:
+    database_type: sqlite
+    connection:
+      pool_size: 10
+      max_overflow: 20
+      pool_timeout: 30
+      pool_recycle: 3600
+      pool_pre_ping: true
+      echo_queries: false
+    migrations:
+      auto_migrate: true
+      migration_directory: migrations/
+      backup_before_migration: true
+    schema:
+      enforce_foreign_keys: true
+      cascade_deletes: true
+      create_indexes: true
+  database_type: postgresql
+
+  # PostgreSQL configuration for production
+  postgresql:
+    host: ${DB_HOST:-localhost}
+    port: ${DB_PORT:-5432}
+    database: ${DB_NAME:-real_estate_production}
+    username: ${DB_USER:-postgres}
+    password: ${DB_PASSWORD:-}
+    sslmode: require
+
+  # Production connection pooling
+  connection:
+    pool_size: 20
+    max_overflow: 40
+    pool_timeout: 60
+    pool_recycle: 7200
+    echo_queries: false
+
+  # Performance optimization
+  performance:
+    query_cache_size: 10000
+    enable_query_logging: false
+    slow_query_threshold: 1
+
+  # Backup settings
+  backup:
+    enabled: true
+    schedule: 0 2 * * * # Daily at 2 AM
+    retention_days: 30
+    compression: true
+
+# =============================================================================
+# DATABASE SCHEMAS DEFINITION
+# =============================================================================
+schemas:
+  # Properties schema
+  properties:
+    tables:
+      properties:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - property_id:
+              type: VARCHAR(50)
+              unique: true
+              nullable: false
+          - address:
+              type: VARCHAR(255)
+              nullable: false
+          - city:
+              type: VARCHAR(100)
+              nullable: false
+          - state:
+              type: VARCHAR(50)
+              nullable: false
+          - zipcode:
+              type: VARCHAR(10)
+              nullable: false
+          - latitude:
+              type: DECIMAL(10
+              8): null
+              nullable: true
+          - longitude:
+              type: DECIMAL(11
+              8): null
+              nullable: true
+          - property_type:
+              type: VARCHAR(50)
+              nullable: false
+          - bedrooms:
+              type: INTEGER
+              nullable: true
+          - bathrooms:
+              type: DECIMAL(3
+              1): null
+              nullable: true
+          - square_feet:
+              type: INTEGER
+              nullable: true
+          - lot_size:
+              type: DECIMAL(10
+              2): null
+              nullable: true
+          - year_built:
+              type: INTEGER
+              nullable: true
+          - garage_spaces:
+              type: INTEGER
+              default: 0
+          - pool:
+              type: BOOLEAN
+              default: false
+          - fireplace:
+              type: BOOLEAN
+              default: false
+          - basement:
+              type: BOOLEAN
+              default: false
+          - listing_price:
+              type: DECIMAL(12
+              2): null
+              nullable: false
+          - sale_price:
+              type: DECIMAL(12
+              2): null
+              nullable: true
+          - listing_date:
+              type: DATE
+              nullable: false
+          - sale_date:
+              type: DATE
+              nullable: true
+          - property_status:
+              type: VARCHAR(20)
+              nullable: false
+          - created_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+          - updated_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - city
+              - state
+            name: idx_location
+          - columns:
+              - property_type
+            name: idx_property_type
+          - columns:
+              - listing_price
+            name: idx_listing_price
+          - columns:
+              - property_status
+            name: idx_status
+          - columns:
+              - created_at
+            name: idx_created_at
+
+      property_features:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - property_id:
+              type: VARCHAR(50)
+              foreign_key: properties.property_id
+          - feature_name:
+              type: VARCHAR(100)
+              nullable: false
+          - feature_value:
+              type: TEXT
+              nullable: true
+          - feature_type:
+              type: VARCHAR(50)
+              nullable: false
+          - created_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - property_id
+            name: idx_property_features_id
+          - columns:
+              - feature_name
+            name: idx_feature_name
+
+  # Market data schema
+  market_data:
+    tables:
+      market_trends:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - market_area:
+              type: VARCHAR(100)
+              nullable: false
+          - date:
+              type: DATE
+              nullable: false
+          - median_price:
+              type: DECIMAL(12
+              2): null
+              nullable: false
+          - average_price:
+              type: DECIMAL(12
+              2): null
+              nullable: false
+          - price_per_sqft:
+              type: DECIMAL(10
+              2): null
+              nullable: false
+          - inventory_count:
+              type: INTEGER
+              nullable: false
+          - days_on_market:
+              type: DECIMAL(5
+              1): null
+              nullable: false
+          - price_change_pct:
+              type: DECIMAL(5
+              2): null
+              nullable: true
+          - created_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - market_area
+              - date
+            name: idx_market_area_date
+            unique: true
+          - columns:
+              - date
+            name: idx_market_date
+
+      economic_indicators:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - indicator_name:
+              type: VARCHAR(100)
+              nullable: false
+          - date:
+              type: DATE
+              nullable: false
+          - value:
+              type: DECIMAL(15
+              4): null
+              nullable: false
+          - unit:
+              type: VARCHAR(50)
+              nullable: true
+          - source:
+              type: VARCHAR(100)
+              nullable: false
+          - created_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - indicator_name
+              - date
+            name: idx_indicator_date
+
+  # ML models schema
+  ml_models:
+    tables:
+      model_registry:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - model_name:
+              type: VARCHAR(100)
+              nullable: false
+          - model_version:
+              type: VARCHAR(50)
+              nullable: false
+          - model_type:
+              type: VARCHAR(50)
+              nullable: false
+          - algorithm:
+              type: VARCHAR(100)
+              nullable: false
+          - file_path:
+              type: VARCHAR(255)
+              nullable: false
+          - performance_metrics:
+              type: JSON
+              nullable: true
+          - hyperparameters:
+              type: JSON
+              nullable: true
+          - training_date:
+              type: TIMESTAMP
+              nullable: false
+          - is_active:
+              type: BOOLEAN
+              default: false
+          - created_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - model_name
+              - model_version
+            name: idx_model_version
+            unique: true
+          - columns:
+              - is_active
+            name: idx_active_models
+
+      predictions:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - prediction_id:
+              type: VARCHAR(50)
+              unique: true
+              nullable: false
+          - model_name:
+              type: VARCHAR(100)
+              nullable: false
+          - model_version:
+              type: VARCHAR(50)
+              nullable: false
+          - input_features:
+              type: JSON
+              nullable: false
+          - prediction_value:
+              type: DECIMAL(12
+              2): null
+              nullable: false
+          - confidence_interval_lower:
+              type: DECIMAL(12
+              2): null
+              nullable: true
+          - confidence_interval_upper:
+              type: DECIMAL(12
+              2): null
+              nullable: true
+          - prediction_date:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+          - user_session:
+              type: VARCHAR(100)
+              nullable: true
+        indexes:
+          - columns:
+              - model_name
+              - prediction_date
+            name: idx_model_predictions
+          - columns:
+              - prediction_date
+            name: idx_prediction_date
+
+  # User data schema
+  user_data:
+    tables:
+      user_preferences:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - session_id:
+              type: VARCHAR(100)
+              nullable: false
+          - preference_type:
+              type: VARCHAR(50)
+              nullable: false
+          - preference_data:
+              type: JSON
+              nullable: false
+          - created_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+          - updated_at:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - session_id
+            name: idx_session_preferences
+
+      search_history:
+        columns:
+          - id:
+              type: INTEGER
+              primary_key: true
+              auto_increment: true
+          - session_id:
+              type: VARCHAR(100)
+              nullable: false
+          - search_criteria:
+              type: JSON
+              nullable: false
+          - results_count:
+              type: INTEGER
+              nullable: false
+          - search_date:
+              type: TIMESTAMP
+              default: CURRENT_TIMESTAMP
+        indexes:
+          - columns:
+              - session_id
+              - search_date
+            name: idx_session_search
+
+# =============================================================================
+# MIGRATION CONFIGURATIONS
+# =============================================================================
+migrations:
+  # Migration file naming convention
+  file_pattern: '{version:04d}_{description}.sql'
+
+  # Migration directory structure
+  directories:
+    - migrations/versions/
+    - migrations/data/
+    - migrations/fixtures/
+
+  # Initial migration scripts
+  initial_migrations:
+    - 0001_create_properties_tables.sql
+    - 0002_create_market_data_tables.sql
+    - 0003_create_ml_models_tables.sql
+    - 0004_create_user_data_tables.sql
+    - 0005_create_indexes.sql
+    - 0006_insert_initial_data.sql
+
+  # Data fixtures for development/testing
+  fixtures:
+    properties_sample: fixtures/sample_properties.csv
+    market_data_sample: fixtures/sample_market_data.csv
+
+# =============================================================================
+# CONNECTION POOLING CONFIGURATION
+# =============================================================================
+connection_pools:
+  # Read-write pool (primary)
+  primary:
+    pool_class: QueuePool
+    pool_size: 10
+    max_overflow: 20
+    pool_timeout: 30
+    pool_recycle: 3600
+    pool_pre_ping: true
+
+  # Read-only pool (for analytics)
+  readonly:
+    pool_class: QueuePool
+    pool_size: 5
+    max_overflow: 10
+    pool_timeout: 60
+    pool_recycle: 7200
+
+  # Background tasks pool
+  background:
+    pool_class: QueuePool
+    pool_size: 2
+    max_overflow: 5
+    pool_timeout: 120
+
+# =============================================================================
+# BACKUP AND MAINTENANCE
+# =============================================================================
+maintenance:
+  # Backup configuration
+  backup:
+    enabled: true
+    backup_directory: backups/
+    retention_policy:
+      daily: 7 # Keep 7 daily backups
+      weekly: 4 # Keep 4 weekly backups
+      monthly: 12 # Keep 12 monthly backups
+
+  # Cleanup tasks
+  cleanup:
+    old_predictions:
+      enabled: true
+      retention_days: 90
+    search_history:
+      enabled: true
+      retention_days: 30
+    temp_data:
+      enabled: true
+      retention_hours: 24
+
+# =============================================================================
+# MONITORING AND ALERTS
+# =============================================================================
+monitoring:
+  # Query performance monitoring
+  performance:
+    slow_query_threshold: 2
+    log_slow_queries: true
+    alert_on_slow_queries: true
+
+  # Connection monitoring
+  connections:
+    alert_on_pool_exhaustion: true
+    max_connection_threshold: 0.8
+
+  # Health checks
+  health_checks:
+    enabled: true
+    check_interval: 60 # seconds
+    timeout: 10 # seconds
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+security:
+  # SSL/TLS settings
+  ssl:
+    enabled: false # Set to true in production
+    cert_file: ''
+    key_file: ''
+    ca_file: ''
+
+  # Access control
+  access:
+    read_only_users: []
+    admin_users: []
+
+  # Data encryption
+  encryption:
+    encrypt_sensitive_fields: false
+    encryption_key: '' # Set via environment variable
+Transform: AWS::Serverless-2016-10-31
