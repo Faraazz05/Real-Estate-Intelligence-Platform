@@ -1,0 +1,565 @@
+# =============================================================================
+# REAL ESTATE INTELLIGENCE PLATFORM - GIT IGNORE CONFIGURATION
+# =============================================================================
+
+# =============================================================================
+# ENVIRONMENT & SECRETS
+# =============================================================================
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+config.ini
+secrets.yaml
+credentials.json
+service-account*.json
+
+# =============================================================================
+# PYTHON SPECIFIC
+# =============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff (if using any Django components)
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# =============================================================================
+# MACHINE LEARNING & DATA SCIENCE
+# =============================================================================
+# Model files and artifacts
+*.pkl
+*.joblib
+*.h5
+*.pb
+*.onnx
+*.tflite
+*.pt
+*.pth
+*.model
+*.bin
+*.safetensors
+
+# Model directories
+models/trained_models/*.pkl
+models/trained_models/*.joblib
+models/trained_models/*.h5
+models/model_artifacts/*.pkl
+models/model_artifacts/*.joblib
+!models/trained_models/.gitkeep
+!models/model_artifacts/.gitkeep
+
+# MLflow artifacts
+mlruns/
+mlflow.db
+mlflow_artifacts/
+.mlflow/
+
+# Weights & Biases
+wandb/
+
+# TensorBoard logs
+logs/
+tensorboard_logs/
+tb_logs/
+
+# Optuna studies
+*.db
+optuna.db
+
+# SHAP cache
+.shap_cache/
+
+# Data files - keep structure but ignore data
+data/raw/*.csv
+data/raw/*.json
+data/raw/*.xlsx
+data/raw/*.parquet
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.xlsx
+data/processed/*.parquet
+data/external/*.csv
+data/external/*.json
+data/external/*.xlsx
+data/external/*.parquet
+data/synthetic/*.csv
+data/synthetic/*.json
+data/synthetic/*.xlsx
+data/synthetic/*.parquet
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+!data/synthetic/.gitkeep
+
+# Large dataset files
+*.h5
+*.hdf5
+*.feather
+*.arrow
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# =============================================================================
+# DATABASE FILES
+# =============================================================================
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# PostgreSQL
+*.sql.gz
+*.dump
+
+# =============================================================================
+# WEB APPLICATION SPECIFIC
+# =============================================================================
+# Flask session files
+flask_session/
+
+# Static file compilation
+.webassets-cache/
+
+# User uploaded files
+uploads/
+user_uploads/
+temp_uploads/
+
+# Generated reports
+reports/generated/
+reports/temp/
+*.pdf
+!reports/templates/*.pdf
+
+# =============================================================================
+# FRONTEND & STATIC FILES
+# =============================================================================
+# Node modules (if using any JS build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled CSS/JS
+web_app/static/css/compiled/
+web_app/static/js/compiled/
+web_app/static/build/
+
+# Sass cache
+.sass-cache/
+
+# =============================================================================
+# CONTAINERIZATION & DEPLOYMENT
+# =============================================================================
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Kubernetes secrets
+k8s/secrets/
+deployment/kubernetes/secrets/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+terraform.tfplan
+terraform.tfstate.backup
+
+# Helm
+charts/*/charts/
+charts/*/requirements.lock
+
+# =============================================================================
+# CLOUD PROVIDER SPECIFIC
+# =============================================================================
+# AWS
+.aws/
+*.pem
+
+# Google Cloud
+.gcloud/
+*.json
+!*-example.json
+
+# Azure
+.azure/
+
+# =============================================================================
+# MONITORING & LOGGING
+# =============================================================================
+# Log files
+*.log
+logs/*.log
+application.log
+error.log
+access.log
+debug.log
+
+# Prometheus data
+prometheus_data/
+
+# Grafana data
+grafana_data/
+
+# =============================================================================
+# TESTING & QUALITY ASSURANCE
+# =============================================================================
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# Test databases
+test.db
+test.sqlite3
+test_*.db
+
+# Mutation testing
+.mutmut-cache
+
+# Profiling results
+profiling_results/
+*.prof
+*.cprof
+
+# =============================================================================
+# DEVELOPMENT TOOLS
+# =============================================================================
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*.un~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# TEMPORARY & CACHE FILES
+# =============================================================================
+# General temporary files
+tmp/
+temp/
+cache/
+.cache/
+
+# Python cache
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# System files
+.Spotlight-V100
+.Trashes
+
+# =============================================================================
+# SECURITY & CERTIFICATES
+# =============================================================================
+# SSL certificates
+*.key
+*.crt
+*.cert
+*.pem
+*.p12
+*.pfx
+
+# API keys and tokens
+api_keys.txt
+tokens.txt
+secrets.txt
+
+# =============================================================================
+# RESEARCH & DOCUMENTATION
+# =============================================================================
+# Research drafts
+research/drafts/
+paper_drafts/
+*.draft.md
+
+# Generated documentation
+docs/_build/
+docs/build/
+
+# Backup documentation
+*.bak.md
+*.backup.md
+
+# =============================================================================
+# MISCELLANEOUS
+# =============================================================================
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Email files
+*.eml
+
+# Office documents (user generated)
+*.docx
+*.xlsx
+*.pptx
+!templates/*.docx
+!templates/*.xlsx
+!templates/*.pptx
+
+# Media files (large)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+!web_app/static/images/*.png
+!web_app/static/images/*.jpg
+!web_app/static/images/*.svg
+!web_app/static/images/icons/*.png
+!web_app/static/images/icons/*.svg
+
+# Archive files
+*.tar
+*.tgz
+*.zip
+
+# Lock files
+*.lock
+
+# =============================================================================
+# PROJECT SPECIFIC IGNORES
+# =============================================================================
+# Real estate specific data
+property_images/
+property_photos/
+user_data/
+client_data/
+
+# Market data caches
+market_cache/
+price_cache/
+
+# Generated synthetic data (large files)
+data/synthetic/large_dataset.csv
+data/synthetic/full_market_simulation.csv
+
+# External API response cache
+api_cache/
+response_cache/
+
+# Performance benchmarks
+benchmarks/results/
+performance_logs/
+
+# A/B testing data
+ab_test_results/
+experiment_data/
+
+# =============================================================================
+# KEEP ESSENTIAL DIRECTORY STRUCTURE
+# =============================================================================
+# Ensure important empty directories are tracked
+!*/.gitkeep
+!*/README.md

@@ -1,0 +1,178 @@
+# Core Data Science & Machine Learning
+numpy
+pandas
+scikit-learn
+xgboost
+lightgbm
+catboost
+tensorflow
+keras
+joblib
+pickle5
+
+# Statistical Analysis & Time Series
+scipy
+statsmodels
+pmdarima
+fbprophet
+
+# Model Explainability & Interpretation
+shap
+lime
+eli5
+yellowbrick
+
+# Hyperparameter Optimization
+optuna
+hyperopt
+scikit-optimize
+
+# Data Visualization
+matplotlib
+seaborn
+plotly
+bokeh
+altair
+folium
+
+# Web Framework & API
+flask
+flask-wtf
+flask-cors
+flask-restful
+flask-sqlalchemy
+flask-migrate
+gunicorn
+werkzeug
+
+# Data Processing & Utilities
+tqdm
+pyyaml
+python-dotenv
+configparser
+pathlib2
+openpyxl
+xlrd
+
+# Geographic & Location Services
+geopandas
+geopy
+shapely
+pyproj
+contextily
+
+# Database & Storage
+sqlite3
+psycopg2-binary
+sqlalchemy
+redis
+pymongo
+
+# Testing & Quality Assurance
+pytest
+pytest-cov
+pytest-mock
+flake8
+black
+isort
+mypy
+
+# Jupyter & Interactive Development
+jupyter
+ipykernel
+ipywidgets
+nbformat
+notebook
+
+# Monitoring & Logging
+mlflow
+wandb
+tensorboard
+prometheus-client
+loguru
+
+# Cloud & Deployment
+boto3
+google-cloud-storage
+azure-storage-blob
+kubernetes
+docker
+
+# HTTP & API Utilities
+requests
+urllib3
+httpx
+aiohttp
+
+# Date & Time Processing
+python-dateutil
+pytz
+arrow
+
+# Image Processing (for property images)
+pillow
+opencv-python
+
+# Natural Language Processing (for descriptions)
+nltk
+spacy
+textblob
+
+# Financial & Economic Data
+yfinance
+fredapi
+quandl
+
+# Synthetic Data Generation
+faker
+numpy-financial
+mimesis
+
+# Performance & Optimization
+numba
+cython
+dask
+ray
+
+# Security & Authentication
+cryptography
+pyjwt
+bcrypt
+passlib
+
+# Development & Build Tools
+setuptools
+wheel
+pip-tools
+pre-commit
+
+# Mathematical & Scientific Computing
+sympy
+networkx
+igraph
+
+# Report Generation
+reportlab
+matplotlib-pdf
+jinja2
+weasyprint
+
+# Data Validation
+cerberus
+marshmallow
+pydantic
+
+# Concurrent Processing
+concurrent-futures
+multiprocessing-logging
+threading
+
+# Environment & Configuration
+python-decouple
+environs
+dynaconf
+
+# Code Documentation
+sphinx
+sphinx-rtd-theme
+mkdocs
